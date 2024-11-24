@@ -1,7 +1,7 @@
   // src/lib/gemini.js
   import { GoogleGenerativeAI } from "@google/generative-ai";
 
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+  const genAI = new GoogleGenerativeAI(" AIzaSyDwjfuQoE169IXVbibiuYONSRR4nv9-7JA");
 
   export async function getShippingEstimates(packageDetails) {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
