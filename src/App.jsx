@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <main className="">
+      <main className="max-w-7xl mx-auto ">
         {children}
       </main>
     </div>

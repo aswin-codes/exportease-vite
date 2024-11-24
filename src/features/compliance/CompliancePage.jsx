@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Shield, Send, Upload, Loader2, AlertCircle,LightbulbIcon    } from 'lucide-react';
+import { Shield, Send, Loader2, AlertCircle, LightbulbIcon } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,22 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import ReactMarkdown from 'react-markdown';
+import { FileUpload } from "@/components/ui/file-upload";
+
+export function FileUploadDemo({onChange}) {
+  const handleFileUpload = (files) => {
+    if (files && files.length > 0) {
+      // Pass the files back to parent component
+      onChange(files);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto min-h-96 border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg">
+      <FileUpload onChange={handleFileUpload} />
+    </div>
+  );
+}
 
 const ComplianceAssistant = () => {
   const [messages, setMessages] = useState([]);
@@ -42,22 +58,23 @@ const ComplianceAssistant = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setSelectedFile(file);
-      setMessages(prev => [...prev, {
-        type: 'system',
-        content: `PDF document uploaded: ${file.name}. You can now ask compliance-related questions about this document.`
-      }]);
-    } else {
-      setMessages(prev => [...prev, {
-        type: 'system',
-        content: 'Please upload a valid PDF document for compliance analysis.'
-      }]);
+  const handleFileUpload = (files) => {
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type === 'application/pdf') {
+        setSelectedFile(file);
+        setMessages(prev => [...prev, {
+          type: 'system',
+          content: `PDF document uploaded: ${file.name}. You can now ask compliance-related questions about this document.`
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          type: 'system',
+          content: 'Please upload a valid PDF document for compliance analysis.'
+        }]);
+      }
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim() || !selectedFile) return;
@@ -173,31 +190,20 @@ const ComplianceAssistant = () => {
       {/* Main chat area */}
       <ScrollArea className="flex-1 px-4 py-6">
         <div className="max-w-4xl mx-auto">
-          {!selectedFile && messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-12">
-              <Card className="w-full max-w-xl p-8">
-                <CardContent className="text-center space-y-6">
-                  <Shield className="h-16 w-16 mx-auto" />
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-semibold">Compliance Assistant</h2>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Upload a document to analyze compliance requirements and regulations.
-                    </p>
-                  </div>
-                  <Button asChild className="w-full h-12 text-base bg-black hover:bg-gray-900 text-white">
-                    <label className="cursor-pointer">
-                      <Upload className="w-5 h-5 mr-2" />
-                      Upload PDF Document
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                    </label>
-                  </Button>
-                </CardContent>
-              </Card>
+        {!selectedFile && messages.length === 0 && (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-12">
+          <Card className="w-full max-w-xl p-8">
+            <CardContent className="text-center space-y-6">
+              <Shield className="h-16 w-16 mx-auto" />
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold">Compliance Assistant</h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Upload a document to analyze compliance requirements and regulations.
+                </p>
+              </div>
+              <FileUploadDemo onChange={handleFileUpload} />
+            </CardContent>
+          </Card>
 
               <div className="w-full max-w-xl space-y-6">
                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
@@ -234,24 +240,6 @@ const ComplianceAssistant = () => {
       <div className="border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <form onSubmit={handleSubmit} className="flex gap-3">
-            {!selectedFile && (
-              <Button
-                type="button"
-                variant="outline"
-                className="shrink-0"
-                asChild
-              >
-                <label className="cursor-pointer">
-                  <Upload className="h-4 w-4" />
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                </label>
-              </Button>
-            )}
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
